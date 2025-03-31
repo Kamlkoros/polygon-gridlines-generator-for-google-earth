@@ -1,0 +1,1 @@
+Simply create a Polygon.kml file with your desired polygon. Ensure that the first two points go from left to right, as the gridlines will adhere to the line between those two points. Save the file in the same folder as polygon_gridline_generator.py. Verify that the name within the script file matches the name of the polygon you have created.

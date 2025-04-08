@@ -234,24 +234,22 @@ settings_by_polygon = {
           "first_row_increment": True,
           "color_dict": {"green": [479,478,428]}
           },
-    "B": {"start_labels": [817,789,774,719,704,635,620,551],
+    "B": {"start_labels": [427,386,386,347,343,306,309,272],
           "first_row_increment": False,
-          "color_dict": {"blue": [10,20,30]}
-          },
-    "C": {"start_labels": [1,20,40,60,80,100,120,140,160,180,200],
-          "first_row_increment": True,
-          "color_dict": {"blue": [10,20,30]}
+          "color_dict": {"red": [427,386,386]}
           },
 }
 
 extensions = [
-    {"source_label": 479, "target_label": 697, "direction": "left_to_right"},
-    {"source_label": 478, "target_label": 642, "direction": "left_to_right"},
-    {"source_label": 428, "target_label": 613, "direction": "left_to_right"},
+    # {"source_label": 479, "target_label": 697, "direction": "left_to_right"},
+    # {"source_label": 478, "target_label": 642, "direction": "left_to_right"},
+    # {"source_label": 428, "target_label": 613, "direction": "left_to_right"},
 ]
 
 class KMLFileEventHandler(FileSystemEventHandler):
-    def __init__(self, kml_path, settings, output_kml, extensions):
+    def __init__(self, kml_path, settings, output_kml, extensions=None):
+        if extensions is None:
+            extensions = []  
         self.kml_path = os.path.abspath(kml_path)
         self.settings = settings
         self.output_kml = output_kml
@@ -266,17 +264,26 @@ class KMLFileEventHandler(FileSystemEventHandler):
                 print("Grids regenerated successfully.")
             except Exception as e:
                 print(f"Error generating grids: {e}")
+        else:
+            print(f"Ignored change: {event.src_path}")  # Debugging: when it's not the correct file
 
 if __name__ == "__main__":
-    event_handler = KMLFileEventHandler(KML_FILE, settings_by_polygon, OUTPUT_KML, extensions)
-    observer = Observer()
-    # Watch the directory containing the KML file
-    observer.schedule(event_handler, path=os.path.dirname(os.path.abspath(KML_FILE)) or ".", recursive=False)
-    observer.start()
-    print(f"Watching for changes in {KML_FILE} ...")
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    KML_FILE = "Polygon.kml"  # Define the correct path here
+
+    if not os.path.exists(KML_FILE):
+        print(f"Error: {KML_FILE} does not exist in the folder.")
+    else:
+        event_handler = KMLFileEventHandler(KML_FILE, settings_by_polygon, OUTPUT_KML)
+        observer = Observer()
+        
+        # Watch the directory containing the KML file
+        observer.schedule(event_handler, path=os.path.dirname(os.path.abspath(KML_FILE)), recursive=False)
+        observer.start()
+        
+        print(f"Watching for changes in {KML_FILE} ...")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
